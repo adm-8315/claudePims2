@@ -1,4 +1,1 @@
-# PIMS2-Claude API Package
-from fastapi import FastAPI
-
-app = FastAPI(title="PIMS2-Claude Integration")
+IyBQSU1TMi1DbGF1ZGUgQVBJIFBhY2thZ2UKZnJvbSBmYXN0YXBpIGltcG9ydCBGYXN0QVBJCgphcHAgPSBGYXN0QVBJKHRpdGxlPSJQSU1TMi1DbGF1ZGUgSW50ZWdyYXRpb24iKQo=
