@@ -1,7 +1,18 @@
-# Core dependencies
+# Django and core dependencies
+Django>=5.0
 python-dotenv>=0.19.0
-requests>=2.26.0
+mysqlclient>=2.2.1
+django-environ>=0.11.2
+
+# API and REST framework
+djangorestframework>=3.14.0
+markdown>=3.5.1
+django-filter>=23.5
 
 # Testing
 pytest>=6.2.5
 pytest-cov>=2.12.0
+pytest-django>=4.7.0
+
+# Development tools
+django-debug-toolbar>=4.2.0
