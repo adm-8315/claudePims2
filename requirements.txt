@@ -1,22 +1,42 @@
-# Django and core dependencies
-Django>=5.0
+# Core dependencies
+fastapi>=0.68.0
+uvicorn>=0.15.0
 python-dotenv>=0.19.0
-mysqlclient>=2.2.1
-django-environ>=0.11.2
+pydantic>=1.8.2
 
-# API and REST framework
-django-cors-headers>=4.3.1
-djangorestframework>=3.14.0
-django-filter>=23.5
-drf-spectacular>=0.27.0
+# PIMS2 and Claude integration
+requests>=2.26.0
+anthropic>=0.3.0
+python-jose>=3.3.0
+cryptography>=35.0.0
+
+# Database and ORM
+sqlalchemy>=1.4.23
+alembic>=1.7.1
+mysqlclient>=2.2.1
+
+# API documentation
+openapi-schema-pydantic>=1.2.0
 
 # Authentication
+python-jose>=3.3.0
+passlib>=1.7.4
+python-multipart>=0.0.5
 PyJWT>=2.8.0
 
 # Testing
 pytest>=6.2.5
 pytest-cov>=2.12.0
-pytest-django>=4.7.0
+pytest-asyncio>=0.15.1
+httpx>=0.18.2
+pytest-mock>=3.6.1
 
 # Development tools
-django-debug-toolbar>=4.2.0
+black>=21.7b0
+isort>=5.9.3
+flake8>=3.9.2
+mypy>=0.910
+
+# Monitoring and logging
+prometheus-fastapi-instrumentator>=5.7.1
+python-json-logger>=2.0.2
