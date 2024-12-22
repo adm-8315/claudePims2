@@ -72,18 +72,3 @@ class PIMS2Client:
             return response.json()
         except RequestException as e:
             raise PIMS2Error(f"Failed to send data to {endpoint}: {str(e)}")
-
-    async def get_status(self) -> Dict[str, Any]:
-        """Get PIMS2 system status."""
-        try:
-            response = self.session.get(
-                urljoin(self.config.get_pims2_url(), 'status')
-            )
-            response.raise_for_status()
-            return response.json()
-        except RequestException as e:
-            raise PIMS2Error(f"Failed to get system status: {str(e)}")
-
-    def close(self) -> None:
-        """Close the client session."""
-        self.session.close()
