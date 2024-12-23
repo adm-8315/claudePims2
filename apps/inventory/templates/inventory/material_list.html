@@ -1,0 +1,71 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Materials Inventory{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Materials Inventory</h2>
+        <a href="{% url 'inventory:material-transaction-create' %}" class="btn btn-primary">
+            New Transaction
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Material</th>
+                    <th>Type</th>
+                    <th>Measure</th>
+                    <th>Total Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for material in materials %}
+                <tr>
+                    <td>
+                        <a href="{% url 'inventory:material-detail' material.materialid %}">
+                            {{ material.material }}
+                        </a>
+                    </td>
+                    <td>{{ material.materialtype.materialtype }}</td>
+                    <td>{{ material.measure.measure }}</td>
+                    <td>
+                        {% with total_stock=material.inventory_levels.all|sum:'stock' %}
+                            {{ total_stock|default:"0" }} {{ material.measure.measure }}
+                        {% endwith %}
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{% url 'inventory:material-detail' material.materialid %}" 
+                               class="btn btn-sm btn-info">
+                                Details
+                            </a>
+                            <button type="button" 
+                                    class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split"
+                                    data-bs-toggle="dropdown">
+                                <span class="visually-hidden">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" 
+                                       href="{% url 'inventory:material-transaction-create' %}?material={{ material.materialid }}">
+                                        New Transaction
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">No materials found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load math_filters %}
+
+{% block content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'production:order_list' %}">Production Orders</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'production:order_detail' production_order.pk %}">Order {{ production_order.productionorderid }}</a></li>
+            <li class="breadcrumb-item active">Add Schedule</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{{ title }}</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Order Summary -->
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading">Order Details</h6>
+                        <p class="mb-0">
+                            Product: {{ production_order.product }}<br>
+                            Remaining Quantity: {{ remaining_quantity }}
+                        </p>
+                    </div>
+
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="id_pourdate" class="form-label">Pour Date</label>
+                                {{ form.pourdate }}
+                                {% if form.pourdate.errors %}
+                                <div class="invalid-feedback">{{ form.pourdate.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="id_stripdate" class="form-label">Strip Date</label>
+                                {{ form.stripdate }}
+                                {% if form.stripdate.errors %}
+                                <div class="invalid-feedback">{{ form.stripdate.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="id_firedate" class="form-label">Fire Date</label>
+                                {{ form.firedate }}
+                                {% if form.firedate.errors %}
+                                <div class="invalid-feedback">{{ form.firedate.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="id_quantity" class="form-label">Quantity</label>
+                                {{ form.quantity }}
+                                {% if form.quantity.errors %}
+                                <div class="invalid-feedback">{{ form.quantity.errors|join:", " }}</div>
+                                {% endif %}
+                                <div class="form-text">
+                                    Maximum allowed: {{ remaining_quantity }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary">Save Schedule</button>
+                                <a href="{% url 'production:order_detail' production_order.pk %}" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize datepicker for date fields
+        $('#id_pourdate, #id_stripdate, #id_firedate').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true
+        });
+
+        // Set strip date to pour date + 1 day when pour date changes
+        $('#id_pourdate').on('changeDate', function(e) {
+            var pourDate = new Date(e.date);
+            var stripDate = new Date(pourDate);
+            stripDate.setDate(pourDate.getDate() + 1);
+            
+            $('#id_stripdate').datepicker('setDate', stripDate);
+            
+            // Set fire date to strip date + 1 day
+            var fireDate = new Date(stripDate);
+            fireDate.setDate(stripDate.getDate() + 1);
+            $('#id_firedate').datepicker('setDate', fireDate);
+        });
+
+        // Update fire date when strip date changes
+        $('#id_stripdate').on('changeDate', function(e) {
+            var stripDate = new Date(e.date);
+            var fireDate = new Date(stripDate);
+            fireDate.setDate(stripDate.getDate() + 1);
+            
+            $('#id_firedate').datepicker('setDate', fireDate);
+        });
+
+        // Validate quantity doesn't exceed remaining
+        var maxQuantity = parseInt("{{ remaining_quantity }}");
+        $('#id_quantity').on('input', function() {
+            var value = parseInt($(this).val());
+            if (value > maxQuantity) {
+                $(this).val(maxQuantity);
+            }
+        });
+    });
+</script>
+{% endblock %}

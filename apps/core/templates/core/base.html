@@ -30,9 +30,8 @@
                             Production
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Production Orders</a></li>
-                            <li><a class="dropdown-item" href="#">Schedule</a></li>
-                            <li><a class="dropdown-item" href="#">Equipment</a></li>
+                            <li><a class="dropdown-item" href="{% url 'production:order_list' %}">Production Orders</a></li>
+                            <li><a class="dropdown-item" href="{% url 'production:order_create' %}">New Order</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">

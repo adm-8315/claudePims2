@@ -1,0 +1,154 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load math_filters %}
+
+{% block content %}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'production:order_list' %}">Production Orders</a></li>
+            <li class="breadcrumb-item active">Order {{ production_order.productionorderid }}</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>{{ title }}</h1>
+        <div class="btn-group">
+            <a href="{% url 'production:order_edit' production_order.pk %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Edit Order
+            </a>
+            <a href="{% url 'production:schedule_create' production_order.pk %}" class="btn btn-success">
+                <i class="fas fa-calendar-plus"></i> Add Schedule
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Order Details -->
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Order Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Product:</strong></div>
+                        <div class="col-sm-8">{{ production_order.product }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Quantity:</strong></div>
+                        <div class="col-sm-8">
+                            {{ production_order.quantityfilled|default:0 }}/{{ production_order.quantityordered }}
+                            {% with progress=production_order.quantityfilled|default:0|multiply:100|divide:production_order.quantityordered %}
+                            <div class="progress mt-1">
+                                <div class="progress-bar" role="progressbar" style="width: {{ progress }}%"
+                                     aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ progress }}%
+                                </div>
+                            </div>
+                            {% endwith %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Form:</strong></div>
+                        <div class="col-sm-8">{{ production_order.form|default:"-" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Taps:</strong></div>
+                        <div class="col-sm-8">{{ production_order.taps|default:"-" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Specs:</strong></div>
+                        <div class="col-sm-8">
+                            {% if production_order.lowerspec or production_order.upperspec %}
+                                {{ production_order.lowerspec }} - {{ production_order.upperspec }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Pattern:</strong></div>
+                        <div class="col-sm-8">
+                            {% if production_order.furnacepattern %}
+                                {{ production_order.furnacepattern.furnacepattern }}
+                                ({{ production_order.furnacepattern.furnace.furnace }})
+                            {% else %}
+                                -
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Notes:</strong></div>
+                        <div class="col-sm-8">{{ production_order.notes|default:"-" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Created By:</strong></div>
+                        <div class="col-sm-8">{{ production_order.user }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Last Updated:</strong></div>
+                        <div class="col-sm-8">{{ production_order.lastedit|date:"Y-m-d H:i" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Production Schedule -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Production Schedule</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Pour Date</th>
+                                    <th>Strip Date</th>
+                                    <th>Fire Date</th>
+                                    <th>Quantity</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for schedule in schedules %}
+                                <tr>
+                                    <td>{{ schedule.pourdate|date:"Y-m-d" }}</td>
+                                    <td>{{ schedule.stripdate|date:"Y-m-d" }}</td>
+                                    <td>{{ schedule.firedate|date:"Y-m-d" }}</td>
+                                    <td>{{ schedule.quantity }}</td>
+                                    <td>
+                                        {% if schedule.active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No schedules found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('.table').DataTable({
+            order: [[0, 'asc']], // Sort by pour date
+            pageLength: 10
+        });
+    });
+</script>
+{% endblock %}

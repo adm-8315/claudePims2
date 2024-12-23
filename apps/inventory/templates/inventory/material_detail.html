@@ -1,0 +1,111 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ material.material }} Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'inventory:material-list' %}">Materials</a></li>
+            <li class="breadcrumb-item active">{{ material.material }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Material Details -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Material Details</h4>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Material Name</dt>
+                        <dd class="col-sm-8">{{ material.material }}</dd>
+
+                        <dt class="col-sm-4">Type</dt>
+                        <dd class="col-sm-8">{{ material.materialtype.materialtype }}</dd>
+
+                        <dt class="col-sm-4">Measure</dt>
+                        <dd class="col-sm-8">{{ material.measure.measure }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Inventory -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>Current Inventory</h4>
+                    <a href="{% url 'inventory:material-transaction-create' %}?material={{ material.materialid }}" 
+                       class="btn btn-primary btn-sm">
+                        New Transaction
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Location</th>
+                                    <th>Stock</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for inventory in inventory_levels %}
+                                <tr>
+                                    <td>{{ inventory.companylocationlink }}</td>
+                                    <td>{{ inventory.stock }} {{ material.measure.measure }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="2" class="text-center">No inventory records found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Recent Transactions</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Location</th>
+                            <th>Quantity</th>
+                            <th>User</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>{{ transaction.transactiondate|date:"Y-m-d H:i" }}</td>
+                            <td>{{ transaction.transactiontype.transactiontype }}</td>
+                            <td>{{ transaction.companylocationlink }}</td>
+                            <td>{{ transaction.quantity }} {{ material.measure.measure }}</td>
+                            <td>{{ transaction.user.username }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No transactions found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
