@@ -1,1 +1,41 @@
-aW1wb3J0IG9zCmltcG9ydCBzeXMKaW1wb3J0IGRqYW5nbwpmcm9tIGRqYW5nby5kYiBpbXBvcnQgY29ubmVjdGlvbnMKZnJvbSBkamFuZ28uZGIudXRpbHMgaW1wb3J0IE9wZXJhdGlvbmFsRXJyb3IKCiMgQWRkIHRoZSBwcm9qZWN0IHJvb3QgZGlyZWN0b3J5IHRvIHRoZSBQeXRob24gcGF0aApwcm9qZWN0X3Jvb3QgPSBvcy5wYXRoLmRpcm5hbWUob3MucGF0aC5kaXJuYW1lKG9zLnBhdGguYWJzcGF0aChfX2ZpbGVfXykpKQpzeXMucGF0aC5hcHBlbmQocHJvamVjdF9yb290KQoKIyBTZXQgdXAgRGphbmdvIGVudmlyb25tZW50Cm9zLmVudmlyb24uc2V0ZGVmYXVsdCgiREpBTkdPX1NFVFRJTkdTX01PRFVMRSIsICJjb25maWcuc2V0dGluZ3MiKQpkamFuZ28uc2V0dXAoKQoKZGVmIHRlc3RfZGF0YWJhc2VfY29ubmVjdGlvbigpOgogICAgdHJ5OgogICAgICAgICMgQXR0ZW1wdCB0byBjb25uZWN0IHRvIHRoZSBkYXRhYmFzZQogICAgICAgIGNvbm5lY3Rpb24gPSBjb25uZWN0aW9uc1snZGVmYXVsdCddCiAgICAgICAgY29ubmVjdGlvbi5jdXJzb3IoKQogICAgICAgIHByaW50KCJTdWNjZXNzZnVsbHkgY29ubmVjdGVkIHRvIHRoZSBkYXRhYmFzZSEiKQogICAgICAgIAogICAgICAgICMgR2V0IGRhdGFiYXNlIHZlcnNpb24KICAgICAgICB3aXRoIGNvbm5lY3Rpb24uY3Vyc29yKCkgYXMgY3Vyc29yOgogICAgICAgICAgICBjdXJzb3IuZXhlY3V0ZSgiU0VMRUNUIFZFUlNJT04oKSIpCiAgICAgICAgICAgIHZlcnNpb24gPSBjdXJzb3IuZmV0Y2hvbmUoKQogICAgICAgICAgICBwcmludChmIkRhdGFiYXNlIHZlcnNpb246IHt2ZXJzaW9uWzBdfSIpCiAgICAgICAgICAgIAogICAgICAgICAgICAjIEdldCBsaXN0IG9mIHRhYmxlcwogICAgICAgICAgICBjdXJzb3IuZXhlY3V0ZSgiU0hPVyBUQUJMRVMiKQogICAgICAgICAgICB0YWJsZXMgPSBjdXJzb3IuZmV0Y2hhbGwoKQogICAgICAgICAgICBwcmludCgiXG5EYXRhYmFzZSB0YWJsZXM6IikKICAgICAgICAgICAgZm9yIHRhYmxlIGluIHRhYmxlczoKICAgICAgICAgICAgICAgIHByaW50KGYiLSB7dGFibGVbMF19IikKICAgICAgICAgICAgICAgIAogICAgZXhjZXB0IE9wZXJhdGlvbmFsRXJyb3IgYXMgZToKICAgICAgICBwcmludChmIkZhaWxlZCB0byBjb25uZWN0IHRvIHRoZSBkYXRhYmFzZS4gRXJyb3I6IHtlfSIpCiAgICBleGNlcHQgRXhjZXB0aW9uIGFzIGU6CiAgICAgICAgcHJpbnQoZiJBbiBlcnJvciBvY2N1cnJlZDoge2V9IikKCmlmIF9fbmFtZV9fID09ICJfX21haW5fXyI6CiAgICB0ZXN0X2RhdGFiYXNlX2Nvbm5lY3Rpb24oKQ==
+import os
+import sys
+import django
+from django.db import connections
+from django.db.utils import OperationalError
+
+# Add the project root directory to the Python path
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
+
+# Set up Django environment
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+django.setup()
+
+def test_database_connection():
+    try:
+        # Attempt to connect to the database
+        connection = connections['default']
+        connection.cursor()
+        print("Successfully connected to the database!")
+        
+        # Get database version
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT VERSION()")
+            version = cursor.fetchone()
+            print(f"Database version: {version[0]}")
+            
+            # Get list of tables
+            cursor.execute("SHOW TABLES")
+            tables = cursor.fetchall()
+            print("\nDatabase tables:")
+            for table in tables:
+                print(f"- {table[0]}")
+                
+    except OperationalError as e:
+        print(f"Failed to connect to the database. Error: {e}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    test_database_connection()
