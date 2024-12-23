@@ -1,1 +1,1 @@
-# Core models will be imported here after generation
+# Models will be imported here after generation
