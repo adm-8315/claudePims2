@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-key-for-development')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
@@ -27,7 +27,11 @@ INSTALLED_APPS = [
     # Third party apps
     'debug_toolbar',
     'django_extensions',
-    # Local apps will go here
+    # Local apps
+    'apps.users.apps.UsersConfig',
+    'apps.core.apps.CoreConfig',
+    'apps.inventory.apps.InventoryConfig',
+    'apps.production.apps.ProductionConfig',
 ]
 
 MIDDLEWARE = [
@@ -67,11 +71,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.getenv('DATABASE_NAME', 'pims2'),
         'USER': os.getenv('DATABASE_USER', 'root'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD', ''),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'Ma4322$$'),
         'HOST': os.getenv('DATABASE_HOST', 'localhost'),
         'PORT': os.getenv('DATABASE_PORT', '3306'),
         'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
         }
     }
 }
@@ -104,3 +109,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Debug Toolbar settings
 INTERNAL_IPS = ['127.0.0.1']
+
+# Custom User Model
+AUTH_USER_MODEL = 'users.User'
