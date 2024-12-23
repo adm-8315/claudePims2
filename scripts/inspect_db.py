@@ -1,10 +1,3 @@
-"""
-Database inspection script for PIMS2.
-
-This script uses Django's inspectdb command to generate model definitions
-from an existing MySQL database.
-"""
-
 import os
 import sys
 from pathlib import Path
