@@ -2,81 +2,89 @@ import os
 import re
 from pathlib import Path
 
-# Model categories and their associated tables
-MODEL_CATEGORIES = {
+# Model categories mapping
+APP_MODELS = {
     'core': [
-        'company', 'person', 'location', 'address', 'email', 'number',
-        'region', 'state', 'city', 'permission', 'requirement'
+        'Company', 'Person', 'Location', 'Address', 'Email', 'Number',
+        'Region', 'State', 'City', 'Website', 'Requirement',
+        'RequirementType', 'RequirementLink',
+        'CompanyCompanyPropertyLink', 'CompanyCompanyTypeLink', 'CompanyEmailLink',
+        'CompanyLocatioLink', 'CompanyLocationLinkNumberLink', 
+        'CompanyLocationLinkPersonLink', 'CompanyProperty', 'CompanyType'
     ],
     'users': [
-        'user', 'auth', 'userlocationlink'
+        'User', 'UserLocationLink', 'Auth', 'Permission', 'PermissionApplication',
+        'PermissionBlock', 'PermissionGroup', 'PermissionLink'
     ],
     'inventory': [
-        'material', 'item', 'product', 'inventory', 'transaction'
+        'Material', 'MaterialInventory', 'MaterialTransaction', 'MaterialType',
+        'Item', 'ItemInventory', 'ItemType', 'Product', 'ProductInventory',
+        'ProductTransaction', 'ProductType', 'Measure', 'TransactionType'
     ],
     'production': [
-        'productionorder', 'equipment', 'preventativemaintenance',
-        'furnace', 'mixer', 'qctest', 'form'
+        'ProductionOrder', 'ProductionOrderSchedule', 'ProductionOrderBatching',
+        'Equipment', 'EquipmentStatus', 'EquipmentType', 'PreventativeMaintenance',
+        'Furnace', 'FurnacePattern', 'Mixer', 'QCTest', 'Form', 'Additive',
+        'Job', 'Grouping'
     ]
 }
 
-def categorize_model(model_name):
-    """Determine which app a model belongs to based on its name."""
-    model_name = model_name.lower()
+# Utility functions
+def get_app_name(model_name):
+    """Determine which app a model belongs to."""
+    model_name = model_name.replace('Model', '')
     
-    for category, patterns in MODEL_CATEGORIES.items():
-        if any(pattern in model_name for pattern in patterns):
-            return category
-    
+    for app, models in APP_MODELS.items():
+        if any(model_name.startswith(model) for model in models):
+            return app
     return 'core'  # Default to core if no match found
 
-def process_models_file(input_file, output_dir):
-    """Process the inspectdb output and split into appropriate app model files."""
-    current_model = None
-    current_category = None
-    current_content = []
+def process_model_file(input_file):
+    """Process models.py and organize models into their respective apps."""
+    with open(input_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    # Extract model classes
+    class_pattern = r'class\s+(\w+)\(models\.Model\):([^\n]*?\n(?:(?!class).*?\n)*)'  
+    matches = re.finditer(class_pattern, content, re.MULTILINE | re.DOTALL)
     
-    app_contents = {
+    app_models = {
         'core': [],
         'users': [],
         'inventory': [],
         'production': []
     }
     
-    with open(input_file, 'r') as f:
-        lines = f.readlines()
-        
-    for line in lines:
-        if line.startswith('class '):
-            # If we have a previous model, save it
-            if current_model and current_category:
-                app_contents[current_category].extend(current_content)
-            
-            # Start new model
-            current_model = re.search(r'class (\w+)', line).group(1)
-            current_category = categorize_model(current_model)
-            current_content = [line]
-        else:
-            if current_model:
-                current_content.append(line)
+    for match in matches:
+        model_name = match.group(1)
+        model_content = match.group(0)
+        app_name = get_app_name(model_name)
+        app_models[app_name].append(model_content)
+
+    # Create output files
+    project_root = Path(__file__).resolve().parent.parent
     
-    # Save the last model
-    if current_model and current_category:
-        app_contents[current_category].extend(current_content)
-    
-    # Write each app's models to its own file
-    for app, content in app_contents.items():
-        if content:
-            app_dir = Path(output_dir) / app / 'models'
+    for app, models in app_models.items():
+        if models:
+            app_dir = project_root / 'apps' / app / 'models'
             app_dir.mkdir(parents=True, exist_ok=True)
             
-            with open(app_dir / 'models.py', 'w') as f:
+            # Write models.py
+            model_path = app_dir / 'models.py'
+            with open(model_path, 'w', encoding='utf-8') as f:
                 f.write('from django.db import models\n\n')
-                f.writelines(content)
+                if app != 'core':
+                    f.write('from apps.core.models import *\n\n')
+                f.write('\n'.join(models))
+            
+            # Write __init__.py if it doesn't exist
+            init_path = app_dir / '__init__.py'
+            if not init_path.exists():
+                init_path.touch()
 
 if __name__ == '__main__':
-    project_root = Path(__file__).resolve().parent.parent
-    input_file = project_root / 'scripts' / 'models_inspection.py'
-    output_dir = project_root / 'apps'
-    
-    process_models_file(input_file, output_dir)
+    input_file = Path(__file__).resolve().parent / 'models_inspection.py'
+    if input_file.exists():
+        process_model_file(input_file)
+    else:
+        print(f"Error: {input_file} not found!")
