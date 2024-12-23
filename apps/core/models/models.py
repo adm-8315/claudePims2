@@ -15,8 +15,6 @@ class Address(models.Model):
         managed = False
         db_table = 'address'
 
-# [Previous imports and other models...]
-
 class Preventativemaintenance(models.Model):
     preventativemaintenanceid = models.AutoField(db_column='preventativeMaintenanceID', primary_key=True)
     equipment = models.ForeignKey('production.Equipment', models.DO_NOTHING, db_column='equipment')
@@ -29,5 +27,3 @@ class Preventativemaintenance(models.Model):
     class Meta:
         managed = False
         db_table = 'preventativemaintenance'
-
-# [Rest of the models...]
