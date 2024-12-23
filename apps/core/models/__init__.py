@@ -1,1 +1,1 @@
-# Models will be imported here after generation
+from .models import *
