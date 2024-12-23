@@ -17,6 +17,8 @@ ENV/
 
 # Environment Variables
 .env
+*.keys.json
+*.json.json
 
 # IDE
 .idea/
@@ -27,3 +29,15 @@ ENV/
 # Operating System
 .DS_Store
 Thumbs.db
+
+# Development files
+test_file*.txt
+test.md
+models_inspection.py
+
+# Temporary directories
+tmp/
+temp/
+
+# Database dumps
+sqlTablesDump*/
